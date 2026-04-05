@@ -260,17 +260,93 @@ For more details about the extension, see the [Claud.ia Bridge README](claudia-b
 
 ### AWS Bedrock
 
-Access Claude through Amazon Web Services.
+Access Claude through Amazon Web Services. Supports multiple authentication methods.
 
 ```bash
 CLAUDE_CODE_USE_BEDROCK=true claudio
 ```
 
+#### Environment variables
+
 | Variable | Description | Default |
 |---|---|---|
-| `AWS_REGION` / `AWS_DEFAULT_REGION` | AWS region | `us-east-1` |
-| `AWS_PROFILE` | AWS profile for authentication | - |
-| `AWS_ACCESS_KEY_ID` | Direct access key | - |
+| `AWS_REGION` / `AWS_DEFAULT_REGION` | AWS region where Bedrock is enabled | `us-east-1` |
+| `AWS_PROFILE` | AWS profile (from `~/.aws/credentials` or `~/.aws/config`) | - |
+| `AWS_ACCESS_KEY_ID` | IAM or temporary credentials access key | - |
+| `AWS_SECRET_ACCESS_KEY` | Secret key corresponding to the access key | - |
+| `AWS_SESSION_TOKEN` | Session token for temporary credentials (STS, ADFS, SSO) | - |
+| `AWS_BEARER_TOKEN_BEDROCK` | Bearer token for API key auth (skips SigV4) | - |
+| `CLAUDE_CODE_SKIP_BEDROCK_AUTH` | Skip AWS authentication entirely (for proxies) | `false` |
+
+#### Authentication methods
+
+**1. Direct credentials (IAM user):**
+
+```bash
+AWS_ACCESS_KEY_ID=AKIA... \
+AWS_SECRET_ACCESS_KEY=wJal... \
+CLAUDE_CODE_USE_BEDROCK=true claudio
+```
+
+**2. Temporary credentials (STS, ADFS, SSO):**
+
+If your organization uses ADFS, AWS SSO, or `sts:AssumeRole`, the flow typically generates temporary credentials with a session token. After authenticating through your normal process:
+
+```bash
+AWS_ACCESS_KEY_ID=ASIA... \
+AWS_SECRET_ACCESS_KEY=wJal... \
+AWS_SESSION_TOKEN=FwoG... \
+AWS_REGION=us-east-1 \
+CLAUDE_CODE_USE_BEDROCK=true claudio
+```
+
+If your flow writes credentials to `~/.aws/credentials` automatically (like `aws sso login` or ADFS tools), you only need:
+
+```bash
+CLAUDE_CODE_USE_BEDROCK=true AWS_PROFILE=my-profile claudio
+```
+
+**3. AWS profile:**
+
+```bash
+CLAUDE_CODE_USE_BEDROCK=true AWS_PROFILE=my-profile claudio
+```
+
+The SDK looks for the profile in `~/.aws/credentials` and `~/.aws/config`. Works with profiles configured via SSO, ADFS, or static credentials.
+
+**4. Bearer token (API key):**
+
+Skips AWS SigV4 signing and uses a bearer token directly. Useful for endpoints that accept API keys instead of IAM credentials.
+
+```bash
+AWS_BEARER_TOKEN_BEDROCK=your-token \
+CLAUDE_CODE_USE_BEDROCK=true claudio
+```
+
+**5. Automatic credential refresh:**
+
+You can configure two commands in `~/.claude.json` to automate credential renewal:
+
+```json
+{
+  "awsAuthRefresh": "aws sso login --profile my-profile",
+  "awsCredentialExport": "aws sts assume-role --role-arn arn:aws:iam::123456:role/MyRole --role-session-name claudio --query Credentials"
+}
+```
+
+- `awsAuthRefresh` — runs first to renew the session (e.g., `aws sso login`, your ADFS script, etc.)
+- `awsCredentialExport` — runs after to retrieve credentials in STS JSON format. Must return a JSON with `AccessKeyId`, `SecretAccessKey`, and `SessionToken`
+
+Credentials are automatically cached for 1 hour.
+
+**6. No authentication (proxy):**
+
+If you use a proxy that handles auth for you:
+
+```bash
+CLAUDE_CODE_SKIP_BEDROCK_AUTH=true \
+CLAUDE_CODE_USE_BEDROCK=true claudio
+```
 
 ---
 
@@ -308,6 +384,8 @@ CLAUDE_CODE_USE_FOUNDRY=true claudio
 
 ## CLI Flags
 
+### General usage
+
 | Flag | Description | Example |
 |---|---|---|
 | `-p, --print` | Non-interactive mode. Responds and exits. | `claudio -p "Summarize index.js"` |
@@ -315,11 +393,44 @@ CLAUDE_CODE_USE_FOUNDRY=true claudio
 | `--settings` | JSON config or file path. | `claudio --settings '{"autoCommit": true}'` |
 | `--bare` | Quick start without background processes. | `claudio --bare` |
 
+### Sessions
+
+| Flag | Description | Example |
+|---|---|---|
+| `-c, --continue` | Continue the last conversation. | `claudio -c` |
+| `-r, --resume` | Resume a session by ID or open a picker. | `claudio -r` |
+| `-n, --name` | Assign a name to the session. | `claudio -n "refactor auth"` |
+
+### Model and behavior
+
+| Flag | Description | Example |
+|---|---|---|
+| `--effort` | Effort level: `low`, `medium`, `high`, `max`. | `claudio --effort max` |
+| `--thinking` | Reasoning mode: `enabled`, `adaptive`, `disabled`. | `claudio --thinking enabled` |
+| `--system-prompt` | Override the system prompt. | `claudio --system-prompt "Only respond in JSON"` |
+| `--max-turns` | Turn limit in non-interactive mode. | `claudio -p "fix tests" --max-turns 5` |
+| `--output-format` | Output format: `text`, `json`, `stream-json`. | `claudio -p "list files" --output-format json` |
+| `--permission-mode` | Permission mode (see table below). | `claudio --permission-mode plan` |
+
+---
+
+## Permission Modes
+
+Control how autonomous the agent is when executing actions. Set with `--permission-mode` or from `/permissions`.
+
+| Mode | Behavior |
+|---|---|
+| `default` | Asks for confirmation on every sensitive action (recommended for beginners). |
+| `plan` | Pauses before executing so you can review the proposed plan. |
+| `acceptEdits` | Auto-accepts file edits, but asks permission for shell commands. |
+| `bypassPermissions` | Skips all confirmations. **Dangerous** — only for disposable environments. |
+| `dontAsk` | Automatically rejects anything not in the whitelist. Useful for CI/scripting. |
+
 ---
 
 ## Slash Commands
 
-Inside the terminal, type `/` followed by the command.
+Inside the terminal, type `/` followed by the command. The most commonly used are listed here. For the full list, run `/help` inside the terminal.
 
 ### Essentials
 
@@ -330,6 +441,7 @@ Inside the terminal, type `/` followed by the command.
 | `/compact` | Summarize old messages to free up context |
 | `/cost` | Show estimated session cost (tokens and duration) |
 | `/doctor` | System diagnostics: config, network, permissions |
+| `/version` | Show current version |
 
 ### Code
 
@@ -340,6 +452,15 @@ Inside the terminal, type `/` followed by the command.
 | `/diff` | Interactive viewer for session changes |
 | `/copy [N]` | Copy responses to clipboard |
 
+### Sessions
+
+| Command | Description |
+|---|---|
+| `/resume` | Resume a previous session |
+| `/memory` | Edit the project's `CLAUDE.md` file |
+| `/permissions` | Manage the active permission mode |
+| `/login` / `/logout` | Authentication |
+
 ### Configuration
 
 | Command | Description |
@@ -348,6 +469,9 @@ Inside the terminal, type `/` followed by the command.
 | `/context` | Show what the model "sees" (tokens, files, history) |
 | `/effort` | View/change model effort level |
 | `/hooks` | Browser for automations in `settings.json` |
+| `/vim` | Toggle vim mode in the editor |
+| `/theme` | Change terminal theme |
+| `/fast` | Toggle fast mode |
 
 ### Other
 
@@ -357,6 +481,8 @@ Inside the terminal, type `/` followed by the command.
 | `/summary` | Generate session summary |
 | `/mcp` | MCP server panel (connect/disconnect) |
 | `/ide` | Connect with your editor (VS Code, JetBrains, Cursor) |
+
+> For full documentation on slash commands, keybindings, hooks, plugins, agents, and other advanced features, see the [official Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code). This fork maintains the same base functionality.
 
 ---
 

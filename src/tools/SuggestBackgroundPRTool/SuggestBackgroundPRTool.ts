@@ -1,0 +1,1 @@
+import { type Tool } from '../../Tool.js'; export const SuggestBackgroundPRTool: Tool = { name: 'suggest_pr', description: 'PR stub', inputSchema: { type: 'object' }, isEnabled: () => false, isDangerous: false, execute: async () => ({ result: '' }) };

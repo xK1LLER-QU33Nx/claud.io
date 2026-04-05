@@ -1,0 +1,1 @@
+import { type Tool } from '../../Tool.js'; export const WorkflowTool: Tool = { name: 'workflow', description: 'Workflow stub', inputSchema: { type: 'object' }, isEnabled: () => false, isDangerous: false, execute: async () => ({ result: '' }) };

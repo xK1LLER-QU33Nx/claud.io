@@ -1,0 +1,14 @@
+[loader]
+".js" = "ts"
+".jsx" = "tsx"
+
+[alias]
+"@xmldom/xmldom" = "./node_modules/@xmldom/xmldom"
+"xmlbuilder" = "./node_modules/xmlbuilder"
+"asciichart" = "./node_modules/asciichart"
+"plist" = "./node_modules/plist"
+"lodash-es" = "./node_modules/lodash-es"
+"chalk" = "./node_modules/chalk"
+"react" = "./node_modules/react"
+"bun:bundle" = "./node_modules/bun-bundle"
+"color-diff-napi" = "./src/native-ts/color-diff/index.ts"

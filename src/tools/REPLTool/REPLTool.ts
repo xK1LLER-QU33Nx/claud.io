@@ -1,0 +1,1 @@
+import { type Tool } from '../../Tool.js'; export const REPLTool: Tool = { name: 'repl', description: 'REPL stub', inputSchema: { type: 'object' }, isEnabled: () => false, isDangerous: false, execute: async () => ({ result: '' }) };

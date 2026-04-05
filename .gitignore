@@ -1,0 +1,42 @@
+
+# Dependencias
+node_modules/
+bun.lockb
+package-lock.json
+
+# Builds y temporales
+dist/
+build/
+.tmp/
+*.tmp
+
+# Logs de depuración (Muy importante ocultar estos)
+*.log
+gemini_debug.log
+vertex_debug.log
+
+# Configuración local de Claude Code
+.claude/
+.mcp.json
+.antigravity/
+
+# Archivos de Sistema
+.DS_Store
+Thumbs.db
+
+# Configuración de IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Variables de entorno (Seguridad)
+.env
+.env.*
+!.env.example
+
+# Notas de desarrollo personales
+PROBLEMAS_CONOCIDOS.md
+CLAUDE.md
+HolaMundo.md
+README_ES.md

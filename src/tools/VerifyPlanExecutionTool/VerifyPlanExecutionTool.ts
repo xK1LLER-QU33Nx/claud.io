@@ -1,0 +1,1 @@
+import { type Tool } from '../../Tool.js'; export const VerifyPlanExecutionTool: Tool = { name: 'verify_plan', description: 'Verify stub', inputSchema: { type: 'object' }, isEnabled: () => false, isDangerous: false, execute: async () => ({ result: '' }) };

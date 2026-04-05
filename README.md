@@ -1,4 +1,4 @@
-# Claude Code CLI
+# Claud.io CLI
 
 Herramienta que integra la potencia de Claude directamente en tu flujo de trabajo local, permitiendote editar codigo, ejecutar tests y gestionar proyectos mediante lenguaje natural. Soporta multiples proveedores de IA.
 

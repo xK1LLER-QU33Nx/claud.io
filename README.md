@@ -1,4 +1,5 @@
-EDUCATIONAL PURPOSES ONLY.
+#EDUCATIONAL PURPOSES ONLY.
+#The whole purpose of this repository is to learn how Claude Code works and try to connect it to other providers.
 
 # Claud.io CLI
 

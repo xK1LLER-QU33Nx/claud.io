@@ -1,6 +1,8 @@
 # EDUCATIONAL PURPOSES ONLY
 
-The whole purpose of this repository is to learn how Claude Code works and try to connect it to other providers.
+The whole purpose of this repository is to learn how AI-powered coding assistants work and to experiment with connecting them to alternative providers. See [DISCLAIMER.md](DISCLAIMER.md) for details.
+
+**[Read in English](README_EN.md)**
 
 ---
 

@@ -10,12 +10,10 @@ build/
 .tmp/
 *.tmp
 
-# Logs de depuración (Muy importante ocultar estos)
+# Logs de depuracion
 *.log
-gemini_debug.log
-vertex_debug.log
 
-# Configuración local de Claude Code
+# Configuracion local de Claude Code
 .claude/
 .mcp.json
 .antigravity/
@@ -24,7 +22,7 @@ vertex_debug.log
 .DS_Store
 Thumbs.db
 
-# Configuración de IDEs
+# Configuracion de IDEs
 .vscode/
 .idea/
 *.sublime-project
@@ -40,3 +38,9 @@ PROBLEMAS_CONOCIDOS.md
 CLAUDE.md
 HolaMundo.md
 README_ES.md
+
+# Claudia Bridge - Extension de VS Code
+claudia-bridge/packages/vscode-extension/out/
+claudia-bridge/packages/vscode-extension/node_modules/
+claudia-bridge/packages/vscode-extension/package-lock.json
+*.vsix

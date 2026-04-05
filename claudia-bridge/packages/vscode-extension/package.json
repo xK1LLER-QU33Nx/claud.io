@@ -1,0 +1,45 @@
+{
+  "name": "claudia-vscode",
+  "displayName": "Claud.ia (Taylor's Version) Bridge",
+  "description": "Exposes VS Code Language Models to the Claud.ia CLI",
+  "version": "0.1.0",
+  "publisher": "taylors-version",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "AI",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "claudia.startBridge",
+        "title": "Claud.ia: Start Model Bridge"
+      },
+      {
+        "command": "claudia.stopBridge",
+        "title": "Claud.ia: Stop Model Bridge"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test-compile": "tsc -p ./"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "@types/vscode": "^1.110.0",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.3.3"
+  }
+}
